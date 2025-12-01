@@ -1,65 +1,222 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+
+interface Service {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  duration: number;
+  location: string;
+  rating: number;
+  reviewCount: number;
+  provider: {
+    name: string;
+  } | null;
+}
 
 export default function Home() {
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [category, setCategory] = useState("");
+  const [location, setLocation] = useState("");
+  const { user } = useAuth();
+
+  useEffect(() => {
+    fetchServices();
+  }, [searchQuery, category, location]);
+
+  const fetchServices = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (searchQuery) params.append("q", searchQuery);
+      if (category) params.append("category", category);
+      if (location) params.append("location", location);
+
+      const response = await fetch(`/api/services?${params}`);
+      const data = await response.json();
+      setServices(data.services || []);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const categories = [
+    "Cleaning",
+    "Plumbing",
+    "Electrical",
+    "Gardening",
+    "Tutoring",
+    "Fitness",
+    "Beauty",
+    "Automotive",
+    "Other",
+  ];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="px-4 sm:px-6 lg:px-8">
+      {/* Hero Section */}
+      <div className="text-center py-12">
+        <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl">
+          Find Local Services
+        </h1>
+        <p className="mt-3 text-xl text-gray-500 sm:mt-4">
+          Book trusted professionals for all your service needs
+        </p>
+      </div>
+
+      {/* Search Filters */}
+      <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label
+              htmlFor="search"
+              className="block text-sm font-medium text-gray-700"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              Search Services
+            </label>
+            <input
+              type="text"
+              id="search"
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="e.g., house cleaning, plumbing"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="category"
+              className="block text-sm font-medium text-gray-700"
             >
-              Learning
-            </a>{" "}
-            center.
+              Category
+            </label>
+            <select
+              id="category"
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              <option value="">All Categories</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat.toLowerCase()}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label
+              htmlFor="location"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Location
+            </label>
+            <input
+              type="text"
+              id="location"
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="City or area"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Services Grid */}
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-500">Loading services...</p>
+        </div>
+      ) : services.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500">
+            No services found. Try adjusting your search criteria.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {services.map((service) => (
+            <div
+              key={service.id}
+              className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    {service.name}
+                  </h3>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {service.category}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                  {service.description}
+                </p>
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-2xl font-bold text-gray-900">
+                      ${service.price}
+                    </span>
+                    <span className="ml-1 text-sm text-gray-500">
+                      / {service.duration}min
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-sm text-gray-600">
+                      ⭐ {service.rating.toFixed(1)}
+                    </span>
+                    <span className="ml-1 text-sm text-gray-500">
+                      ({service.reviewCount})
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-2 text-sm text-gray-600">
+                  📍 {service.location}
+                </div>
+                <div className="mt-2 text-sm text-gray-600">
+                  👤 {service?.provider?.name}
+                </div>
+                <div className="mt-4">
+                  <Link
+                    href={`/services/${service.id}`}
+                    className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    View Details
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      </main>
+      )}
+
+      {/* Call to Action for Providers */}
+      {user?.role === "provider" && (
+        <div className="mt-12 bg-indigo-50 rounded-lg p-6 text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Ready to offer your services?
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Create and manage your service listings to reach more customers.
+          </p>
+          <Link
+            href="/dashboard/provider"
+            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+          >
+            Manage My Services
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
