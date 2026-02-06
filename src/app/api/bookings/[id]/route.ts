@@ -17,7 +17,6 @@ export const GET = withAuth(async (request: NextRequest, user: any) => {
             description: true,
             price: true,
             duration: true,
-            location: true,
           },
         },
         user: {
@@ -27,8 +26,6 @@ export const GET = withAuth(async (request: NextRequest, user: any) => {
             email: true,
             phone: true,
             address: true,
-            latitude: true,
-            longitude: true,
           },
         },
         provider: {
@@ -38,8 +35,6 @@ export const GET = withAuth(async (request: NextRequest, user: any) => {
             email: true,
             phone: true,
             address: true,
-            latitude: true,
-            longitude: true,
           },
         },
       },
@@ -78,7 +73,6 @@ export const GET = withAuth(async (request: NextRequest, user: any) => {
           description: booking.service.description,
           price: booking.service.price,
           duration: booking.service.duration,
-          location: booking.service.location,
         },
         user: {
           id: booking.user.id,
@@ -86,8 +80,6 @@ export const GET = withAuth(async (request: NextRequest, user: any) => {
           email: booking.user.email,
           phone: booking.user.phone,
           address: booking.user.address,
-          latitude: booking.user.latitude,
-          longitude: booking.user.longitude,
         },
         provider: {
           id: booking.provider.id,
@@ -95,8 +87,6 @@ export const GET = withAuth(async (request: NextRequest, user: any) => {
           email: booking.provider.email,
           phone: booking.provider.phone,
           address: booking.provider.address,
-          latitude: booking.provider.latitude,
-          longitude: booking.provider.longitude,
         },
         createdAt: booking.createdAt,
         updatedAt: booking.updatedAt,
@@ -107,7 +97,7 @@ export const GET = withAuth(async (request: NextRequest, user: any) => {
     console.error("Booking details error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 });
@@ -131,10 +121,7 @@ export const PUT = withAuth(async (request: NextRequest, user: any) => {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    if (
-      user.role === "provider" &&
-      booking.providerId !== user.userId
-    ) {
+    if (user.role === "provider" && booking.providerId !== user.userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
@@ -148,7 +135,7 @@ export const PUT = withAuth(async (request: NextRequest, user: any) => {
     if (status && !allowedStatuses[user.role]?.includes(status)) {
       return NextResponse.json(
         { error: "Invalid status transition" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -173,7 +160,7 @@ export const PUT = withAuth(async (request: NextRequest, user: any) => {
     console.error("Booking update error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 });
@@ -194,7 +181,7 @@ export const DELETE = withAuth(async (request: NextRequest, user: any) => {
     if (booking.status === "completed" || booking.status === "cancelled") {
       return NextResponse.json(
         { error: "Cannot cancel completed or already cancelled booking" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -217,7 +204,7 @@ export const DELETE = withAuth(async (request: NextRequest, user: any) => {
     console.error("Booking cancellation error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 });
