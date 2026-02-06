@@ -19,7 +19,7 @@ export default function RegisterPage() {
   const router = useRouter();
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -34,7 +34,7 @@ export default function RegisterPage() {
         formData.password,
         formData.phone,
         formData.address,
-        formData.role
+        formData.role,
       );
       router.push("/");
     } catch (err: any) {
@@ -143,6 +143,7 @@ export default function RegisterPage() {
               >
                 <option value="user">Customer</option>
                 <option value="provider">Service Provider</option>
+                <option value="admin">Administrator</option>
               </select>
             </div>
           </div>
@@ -157,7 +158,7 @@ export default function RegisterPage() {
             </button>
           </div>
 
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <Link
               href="/auth/login"
               className="font-medium text-indigo-600 hover:text-indigo-500"

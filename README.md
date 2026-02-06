@@ -1,272 +1,261 @@
 # Home Service Discovery Platform
 
-A comprehensive home service marketplace built with Next.js, enabling users to discover, book, and review home services while providing providers with tools to manage their offerings.
+<div align="center">
 
-## 🌟 Features
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-5.0-green?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-red?style=for-the-badge&logo=redis)](https://redis.io/)
+[![Stripe](https://img.shields.io/badge/Stripe-purple?style=for-the-badge&logo=stripe)](https://stripe.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.0-38bdf8?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
 
-### For Users
-- **Service Discovery**: Browse and search home services by category
-- **Smart Recommendations**: AI-powered service recommendations using machine learning
-- **Booking Management**: Complete booking lifecycle with status tracking
-- **Review System**: Rate and review services after completion
-- **User Dashboard**: Track bookings, reviews, and profile management
-- **Secure Authentication**: JWT-based authentication with role-based access
+A comprehensive home service discovery platform connecting users with local service providers.
 
-### For Service Providers
-- **Provider Dashboard**: Manage services, bookings, and customer interactions
-- **Service Management**: Create, edit, and manage service offerings
-- **Booking Management**: Accept, manage, and update booking statuses
-- **Profile Management**: Build provider reputation with verified profiles
-- **Review Management**: Monitor and respond to customer feedback
+[Features](#features) • [Architecture](#architecture) • [API Reference](#api-reference) • [Getting Started](#getting-started)
 
-### For Administrators
-- **Admin Dashboard**: Platform oversight and user management
-- **Content Moderation**: Manage services, reviews, and user reports
-- **Analytics**: Platform performance and usage insights
+</div>
 
-## 🛠 Tech Stack
+---
 
-### Frontend
-- **Next.js 16**: React framework with App Router
-- **React 19**: Modern React with concurrent features
-- **TypeScript**: Type-safe development
-- **Tailwind CSS 4**: Utility-first CSS framework
+## Overview
 
-### Backend
-- **Next.js API Routes**: Server-side API endpoints
-- **Prisma ORM**: Type-safe database client
-- **PostgreSQL**: Primary database
-- **JWT**: Authentication and authorization
+JustServiceHub is a full-stack web application that enables users to discover, book, and review local service providers. The platform supports multiple user roles (customers, providers, administrators) and includes AI-powered service recommendations, real-time location tracking, and secure payment processing.
 
-### AI & ML
-- **Hugging Face Transformers**: AI-powered recommendations
-- **Custom Recommendation Engine**: Service matching algorithms
+## Features
 
-### DevOps & Deployment
-- **Docker**: Containerization support
-- **Docker Compose**: Multi-container development
-- **ESLint**: Code linting and formatting
-- **PostCSS**: CSS processing
+- **Service Discovery** - Browse and search services with AI-powered semantic search
+- **Smart Booking** - Schedule appointments with real-time availability
+- **Secure Payments** - Integrated Stripe payment processing
+- **Location Tracking** - Real-time provider/customer location via Redis
+- **AI Recommendations** - Personalized service suggestions using OpenAI
+- **Review System** - Rate and review completed services
+- **Admin Dashboard** - Comprehensive management interface
 
-## 🚀 Quick Start
+---
 
-### Prerequisites
-- Node.js 18+ 
-- PostgreSQL database
-- Docker (optional, for containerized deployment)
+## Architecture
 
-### Installation
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Frontend Layer                            │
+│  Next.js 14 (App Router) + TypeScript + Tailwind CSS           │
+│  ├── Authentication (JWT)                                        │
+│  ├── Role-based Access Control                                  │
+│  └── Real-time Maps (Leaflet)                                   │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+┌────────────────────────────▼────────────────────────────────────┐
+│                         API Layer                                │
+│  Next.js API Routes + Middleware                                │
+│  ├── Authentication (/api/auth)                                 │
+│  ├── Services (/api/services)                                    │
+│  ├── Bookings (/api/bookings)                                   │
+│  ├── Payments (/api/payments)                                   │
+│  └── Administration (/api/admin)                                │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+┌────────────────────────────▼────────────────────────────────────┐
+│                        Data Layer                                │
+│  PostgreSQL (Prisma ORM)                                         │
+│  ├── Users, Services, Bookings, Reviews                          │
+│  └── Redis (Location Caching)                                    │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd home-service-discovery
-   ```
+---
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Environment Setup**
-   Create a `.env` file in the root directory:
-   ```env
-   DATABASE_URL="postgresql://postgres:password@localhost:5432/home_service_discovery"
-   JWT_SECRET="your-super-secret-jwt-key-here"
-   NEXT_PUBLIC_API_URL="http://localhost:3000"
-   ```
-
-4. **Database Setup**
-   ```bash
-   # Generate Prisma client
-   npx prisma generate
-   
-   # Run database migrations
-   npx prisma db push
-   
-   # (Optional) Seed database
-   npx prisma db seed
-   ```
-
-5. **Start Development Server**
-   ```bash
-   npm run dev
-   ```
-
-   Visit `http://localhost:3000` to access the application.
-
-### Docker Deployment
-
-1. **Build and run with Docker Compose**
-   ```bash
-   docker-compose up --build
-   ```
-
-   This will start:
-   - Next.js application on port 3000
-   - PostgreSQL database on port 5432
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
-├── app/                    # Next.js App Router
-│   ├── api/               # API routes
-│   │   ├── auth/          # Authentication endpoints
-│   │   ├── bookings/      # Booking management
-│   │   ├── providers/     # Provider operations
-│   │   ├── services/      # Service CRUD operations
-│   │   ├── reviews/       # Review system
-│   │   └── recommendations/ # AI recommendations
-│   ├── auth/              # Authentication pages
-│   ├── dashboard/         # User dashboards
-│   ├── services/          # Service browsing
-│   └── admin/             # Admin panel
-├── components/            # Reusable UI components
-├── context/               # React context providers
-├── lib/                   # Utility libraries
-│   ├── auth.ts           # Authentication helpers
-│   ├── prisma.ts         # Database client
-│   ├── security.ts       # Security utilities
-│   ├── validation.ts     # Input validation
-│   └── ai.ts             # AI/ML utilities
-├── middleware/            # Next.js middleware
-└── models/                # Data models
+├── app/                          # Next.js App Router pages
+│   ├── api/                     # Backend API routes
+│   │   ├── admin/              # Admin management endpoints
+│   │   ├── auth/               # Authentication endpoints
+│   │   ├── bookings/           # Booking management
+│   │   ├── location/           # Location tracking
+│   │   ├── payments/           # Payment processing
+│   │   ├── providers/          # Provider endpoints
+│   │   ├── recommendations/    # AI recommendations
+│   │   ├── reviews/            # Review management
+│   │   └── services/           # Service management
+│   ├── admin/                   # Admin dashboard page
+│   ├── auth/                    # Login/Register pages
+│   ├── dashboard/               # User dashboards
+│   ├── profile/                 # User profile page
+│   ├── recommendations/         # AI recommendations page
+│   ├── services/               # Service browsing
+│   ├── layout.tsx              # Root layout
+│   └── page.tsx                # Home page
+├── components/                  # React components
+│   ├── admin/                  # Admin-specific components
+│   ├── Layout.tsx              # Main layout
+│   ├── LocationMap.tsx         # Map component
+│   ├── PaymentForm.tsx         # Payment form
+│   ├── ProfileComponent.tsx    # Profile display
+│   └── ReviewModal.tsx         # Review modal
+├── context/                    # React context providers
+│   └── AuthContext.tsx         # Authentication context
+└── lib/                        # Utility libraries
+    ├── ai.ts                   # OpenAI integration
+    ├── auth.ts                 # JWT authentication
+    ├── prisma.ts              # Database client
+    ├── redis.ts               # Redis client
+    ├── security.ts            # Security utilities
+    ├── stripe.ts              # Stripe configuration
+    └── validation.ts          # Input validation
 ```
 
-## 🗄 Database Schema
+---
 
-### Core Models
+## User Roles
 
-**User**
-- Role-based access (user, provider, admin)
-- Profile management with verification
-- Authentication with secure password hashing
+| Role       | Description      | Capabilities                                      |
+| ---------- | ---------------- | ------------------------------------------------- |
+| `user`     | Customer         | Browse services, create bookings, leave reviews   |
+| `provider` | Service Provider | Manage services, handle bookings, track locations |
+| `admin`    | Administrator    | Full system access, user/service management       |
 
-**Service**
-- Service offerings with detailed information
-- Category-based organization
-- Pricing and availability management
-- Rating and review aggregation
+---
 
-**Booking**
-- Complete booking lifecycle management
-- Status tracking (pending → confirmed → in_progress → completed)
-- Payment status integration
-- Provider-user relationship management
-
-**Review**
-- Post-service feedback system
-- Rating aggregation
-- Provider reputation building
-
-## 🔐 Authentication
-
-The platform uses JWT-based authentication with the following features:
-
-- **Registration**: User and provider registration with email verification
-- **Login**: Secure login with password hashing (bcryptjs)
-- **Profile Management**: User profile updates and verification
-- **Role-Based Access**: Different permissions for users, providers, and admins
-- **Session Management**: Secure token handling and refresh
-
-## 🤖 AI Recommendations
-
-The platform includes an AI-powered recommendation system:
-
-- **Service Matching**: ML-based service recommendations
-- **User Behavior Analysis**: Personalized suggestions
-- **Provider Matching**: Smart provider recommendations
-- **Hugging Face Integration**: State-of-the-art transformer models
-
-## 📡 API Endpoints
+## API Reference
 
 ### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `GET /api/auth/profile` - Get user profile
-- `PUT /api/auth/profile` - Update user profile
+
+| Endpoint             | Method  | Description        | Auth Required |
+| -------------------- | ------- | ------------------ | ------------- |
+| `/api/auth/login`    | POST    | User login         | No            |
+| `/api/auth/register` | POST    | User registration  | No            |
+| `/api/auth/profile`  | GET/PUT | Profile management | Yes           |
 
 ### Services
-- `GET /api/services` - List services with filtering
-- `POST /api/services` - Create new service (providers only)
-- `GET /api/services/[id]` - Get service details
-- `PUT /api/services/[id]` - Update service (providers only)
-- `DELETE /api/services/[id]` - Delete service (providers only)
+
+| Endpoint             | Method | Description                        | Auth Required  |
+| -------------------- | ------ | ---------------------------------- | -------------- |
+| `/api/services`      | GET    | List services (supports AI search) | No             |
+| `/api/services`      | POST   | Create service                     | Provider/Admin |
+| `/api/services/[id]` | GET    | Service details                    | No             |
+| `/api/services/[id]` | PUT    | Update service                     | Owner/Admin    |
+| `/api/services/[id]` | DELETE | Delete service                     | Owner/Admin    |
 
 ### Bookings
-- `GET /api/bookings` - List user bookings
-- `POST /api/bookings` - Create new booking
-- `GET /api/bookings/[id]` - Get booking details
-- `PUT /api/bookings/[id]` - Update booking status
 
-### Providers
-- `GET /api/providers` - List service providers
-- `GET /api/providers/[id]` - Get provider details
+| Endpoint             | Method | Description        | Auth Required |
+| -------------------- | ------ | ------------------ | ------------- |
+| `/api/bookings`      | GET    | List user bookings | Yes           |
+| `/api/bookings`      | POST   | Create booking     | Yes           |
+| `/api/bookings/[id]` | GET    | Booking details    | Yes           |
+| `/api/bookings/[id]` | PUT    | Update booking     | Yes           |
+| `/api/bookings/[id]` | DELETE | Cancel booking     | Yes           |
 
-### Reviews
-- `GET /api/reviews` - List service reviews
-- `POST /api/reviews` - Create new review
-- `PUT /api/reviews/[id]` - Update review
+### Payments
 
-### Recommendations
-- `GET /api/recommendations` - Get personalized recommendations
+| Endpoint                              | Method | Description        | Auth Required |
+| ------------------------------------- | ------ | ------------------ | ------------- |
+| `/api/payments/create-payment-intent` | POST   | Initialize payment | Yes           |
+| `/api/payments/confirm`               | POST   | Confirm payment    | Yes           |
 
-## 🧪 Development
+### Admin
 
-### Available Scripts
+| Endpoint              | Method           | Description        | Auth Required |
+| --------------------- | ---------------- | ------------------ | ------------- |
+| `/api/admin/users`    | GET/PATCH/DELETE | User management    | Admin         |
+| `/api/admin/services` | GET/PATCH/DELETE | Service management | Admin         |
+| `/api/admin/bookings` | GET/PATCH/DELETE | Booking management | Admin         |
+| `/api/admin/payments` | GET/POST         | Payment management | Admin         |
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npx prisma studio` - Open Prisma database browser
+---
 
-### Code Quality
+## Getting Started
 
-The project uses:
-- **ESLint**: Code linting and formatting
-- **TypeScript**: Type safety and better developer experience
-- **Prisma**: Type-safe database access
-- **Zod**: Runtime type validation
+### Prerequisites
 
-### Security Features
+- Node.js 18+
+- PostgreSQL 14+
+- Redis 7+
+- Stripe account
+- OpenAI API key (optional, for recommendations)
 
-- **Input Validation**: All inputs validated using Zod schemas
-- **Password Hashing**: bcryptjs for secure password storage
-- **JWT Security**: Secure token-based authentication
-- **SQL Injection Protection**: Prisma ORM prevents SQL injection
-- **CSRF Protection**: Built-in Next.js CSRF protection
+### Environment Variables
 
-## 🚀 Deployment
+```env
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/homedb"
+DIRECT_URL="postgresql://user:password@localhost:5432/homedb"
 
-### Production Environment
+# Redis
+REDIS_URL="redis://localhost:6379"
 
-1. **Environment Variables**
-   ```env
-   DATABASE_URL="postgresql://user:password@host:5432/database"
-   JWT_SECRET="production-jwt-secret"
-   NEXT_PUBLIC_API_URL="https://your-domain.com"
-   ```
+# Authentication
+JWT_SECRET="your-super-secret-jwt-key"
 
-2. **Build and Deploy**
-   ```bash
-   npm run build
-   npm start
-   ```
+# Stripe
+STRIPE_SECRET_KEY="sk_test_..."
+STRIPE_PUBLISHABLE_KEY="pk_test_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
 
-3. **Database Migration**
-   ```bash
-   npx prisma migrate deploy
-   ```
-
-### Docker Production
-
-```bash
-docker-compose -f docker-compose.prod.yml up --build
+# OpenAI (Optional)
+OPENAI_API_KEY="sk-..."
 ```
 
-## 🤝 Contributing
+### Installation
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd home-service-discovery
+
+# Install dependencies
+npm install
+
+# Setup database
+npx prisma migrate dev
+
+# Start development server
+npm run dev
+```
+
+The application will be available at `http://localhost:3000`.
+
+---
+
+## Technology Stack
+
+### Frontend Technologies
+
+| Technology      | Purpose                         |
+| --------------- | ------------------------------- |
+| Next.js 14      | React framework with App Router |
+| TypeScript      | Type safety                     |
+| Tailwind CSS    | Utility-first styling           |
+| React Context   | State management                |
+| Leaflet         | Interactive maps                |
+| Stripe Elements | Payment UI components           |
+
+### Backend Technologies
+
+| Technology         | Purpose                     |
+| ------------------ | --------------------------- |
+| Next.js API Routes | Backend API endpoints       |
+| Prisma ORM         | Database ORM                |
+| PostgreSQL         | Primary database            |
+| Redis              | Location caching & sessions |
+| JWT                | Token-based authentication  |
+| Stripe             | Payment processing          |
+| OpenAI             | AI recommendations          |
+
+### DevOps
+
+| Technology | Purpose           |
+| ---------- | ----------------- |
+| Docker     | Containerization  |
+| Kubernetes | Orchestration     |
+| Jest       | Testing framework |
+
+---
+
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -274,38 +263,14 @@ docker-compose -f docker-compose.prod.yml up --build
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-### Development Guidelines
+---
 
-- Follow TypeScript best practices
-- Use Prisma for all database operations
-- Implement proper error handling
-- Add validation for all inputs
-- Write meaningful commit messages
-- Test your changes thoroughly
+## License
 
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🆘 Support
-
-For support and questions:
-- Create an issue in the repository
-- Check the documentation
-- Review the API endpoints
-
-## 🔄 Changelog
-
-### Version 0.1.0
-- Initial release
-- Basic authentication system
-- Service booking functionality
-- Provider management
-- Review and rating system
-- AI-powered recommendations
-- Admin dashboard
-- Docker support
+This project is licensed under JUST License.
 
 ---
 
-**Built with ❤️ using Next.js, Prisma, and modern web technologies**
+<div align="center">
+Built with ❤️ using Next.js, Prisma, and Stripe
+</div>

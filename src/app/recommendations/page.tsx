@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import ReviewModal from "@/components/ReviewModal";
 
 interface Recommendation {
   id: string;
@@ -26,6 +27,9 @@ export default function RecommendationsPage() {
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [searched, setSearched] = useState(false);
+  const [selectedService, setSelectedService] = useState<Recommendation | null>(
+    null
+  );
   const { user } = useAuth();
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -51,6 +55,14 @@ export default function RecommendationsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleViewReviews = (service: Recommendation) => {
+    setSelectedService(service);
+  };
+
+  const handleCloseReviews = () => {
+    setSelectedService(null);
   };
 
   const exampleQueries = [
@@ -198,6 +210,14 @@ export default function RecommendationsPage() {
                           View Details
                         </Link>
                       </div>
+                      <div className="mt-2">
+                        <button
+                          onClick={() => handleViewReviews(service)}
+                          className="w-full inline-flex justify-center items-center px-4 py-2 border text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                        >
+                          View Reviews ({service.reviewCount})
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -250,6 +270,16 @@ export default function RecommendationsPage() {
           </div>
         </div>
       </div>
+
+      {/* Review Modal */}
+      {selectedService && (
+        <ReviewModal
+          serviceId={selectedService.id}
+          serviceName={selectedService.name}
+          isOpen={!!selectedService}
+          onClose={handleCloseReviews}
+        />
+      )}
     </div>
   );
 }

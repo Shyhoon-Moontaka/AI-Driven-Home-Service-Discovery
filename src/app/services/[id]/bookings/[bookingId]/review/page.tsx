@@ -24,19 +24,21 @@ export default function ReviewPage() {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
-  const { id } = useParams();
+  const params = useParams();
+  const serviceId = params.id as string;
+  const bookingId = params.bookingId as string;
   const { user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (id && user) {
+    if (bookingId && user) {
       fetchBookingDetails();
     }
-  }, [id, user]);
+  }, [bookingId, user]);
 
   const fetchBookingDetails = async () => {
     try {
-      const response = await fetch(`/api/bookings/${id}`, {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -74,7 +76,7 @@ export default function ReviewPage() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          bookingId: id,
+          bookingId: bookingId,
           rating,
           comment: comment.trim() || undefined,
         }),
@@ -102,16 +104,37 @@ export default function ReviewPage() {
     );
   }
 
-  if (error || !booking) {
+  // Validate required parameters
+  if (!serviceId || !bookingId) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-600">{error || "Booking not found"}</p>
+        <p className="text-red-600">
+          Invalid review URL. Missing required parameters.
+        </p>
         <Link
           href="/dashboard/bookings"
           className="text-indigo-600 hover:text-indigo-500 mt-4 inline-block"
         >
           Back to bookings
         </Link>
+      </div>
+    );
+  }
+
+  if (error || !booking) {
+    return (
+      <div className="flex items-center justify-center h-[80vh] bg-gray-50 px-4">
+        <div className="bg-green-300 shadow-lg rounded-lg p-8 max-w-md w-full text-center">
+          <p className="text-yellow-500 text-lg font-semibold mb-4">
+            {error || "Booking not found"}
+          </p>
+          <Link
+            href="/dashboard/bookings"
+            className="inline-block mt-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded hover:bg-indigo-500 transition-colors duration-200"
+          >
+            Back to bookings
+          </Link>
+        </div>
       </div>
     );
   }

@@ -1,34 +1,18 @@
-version: "3.8"
-
 services:
-  app:
+  web:
     build: .
     ports:
       - "3000:3000"
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017/service-platform
-      - JWT_SECRET=your-production-jwt-secret-here
-      - NEXT_PUBLIC_API_URL=http://localhost:3000
+      DATABASE_URL: postgresql://postgres:mysecretpassword@db:5432/home_service_discovery
     depends_on:
-      - mongodb
-    volumes:
-      - .:/app
-      - /app/node_modules
-    networks:
-      - service-platform
+      - db
 
-  mongodb:
-    image: mongo:latest
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: home_service_discovery
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
     ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - service-platform
-
-volumes:
-  mongodb_data:
-
-networks:
-  service-platform:
-    driver: bridge
+      - "5432:5432"

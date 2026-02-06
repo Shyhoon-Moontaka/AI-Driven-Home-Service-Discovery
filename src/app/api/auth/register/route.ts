@@ -15,6 +15,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Admin registration security
+    if (role === "admin") {
+      // Check if admin already exists
+      const existingAdmin = await prisma.user.findFirst({
+        where: { role: "admin" },
+      });
+      if (existingAdmin) {
+        return NextResponse.json(
+          { error: "Admin account already exists. Please contact existing admin." },
+          { status: 400 }
+        );
+      }
+      
+      // Require stronger password for admin
+      if (password.length < 8) {
+        return NextResponse.json(
+          { error: "Admin passwords must be at least 8 characters long" },
+          { status: 400 }
+        );
+      }
+    }
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -38,6 +60,7 @@ export async function POST(request: NextRequest) {
         phone,
         address,
         role: role || "user",
+        // Location will be set via separate API call from client
       },
     });
 

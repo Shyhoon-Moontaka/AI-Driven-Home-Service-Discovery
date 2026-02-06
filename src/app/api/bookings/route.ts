@@ -105,7 +105,7 @@ export const GET = withAuth(async (request: NextRequest, user: any) => {
     console.error("Bookings list error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 });
@@ -118,7 +118,7 @@ export const POST = withAuth(async (request: NextRequest, user: any) => {
     if (!serviceId || !date) {
       return NextResponse.json(
         { error: "Service ID and date are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -129,7 +129,7 @@ export const POST = withAuth(async (request: NextRequest, user: any) => {
     if (!service || !service.isActive) {
       return NextResponse.json(
         { error: "Service not found or unavailable" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -137,7 +137,7 @@ export const POST = withAuth(async (request: NextRequest, user: any) => {
     if (service.providerId === user.userId) {
       return NextResponse.json(
         { error: "Cannot book your own service" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -155,7 +155,7 @@ export const POST = withAuth(async (request: NextRequest, user: any) => {
     if (conflictingBooking) {
       return NextResponse.json(
         { error: "Service is not available at this time" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -186,13 +186,13 @@ export const POST = withAuth(async (request: NextRequest, user: any) => {
           },
         },
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("Booking creation error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 });

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
@@ -9,15 +8,16 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { login, loading } = useAuth();
-  const router = useRouter();
+  const { login, loading, redirectAfterLogin } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     try {
       await login(email, password);
-      router.push("/");
+      // Get user role and redirect accordingly
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      redirectAfterLogin(userData.role || "user");
     } catch (err: any) {
       setError(err.message);
     }
@@ -80,7 +80,7 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <Link
               href="/auth/register"
               className="font-medium text-indigo-600 hover:text-indigo-500"

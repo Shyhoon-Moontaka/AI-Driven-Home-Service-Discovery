@@ -29,6 +29,7 @@ interface AuthContextType {
   ) => Promise<void>;
   logout: () => void;
   loading: boolean;
+  redirectAfterLogin: (userRole: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,6 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
+
       setUser(data.user);
       setToken(data.token);
       localStorage.setItem("token", data.token);
@@ -98,6 +100,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
+
       setUser(data.user);
       setToken(data.token);
       localStorage.setItem("token", data.token);
@@ -109,16 +112,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     setUser(null);
     setToken(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
   };
 
+  const redirectAfterLogin = (userRole: string) => {
+    switch (userRole) {
+      case "admin":
+        window.location.href = "/admin";
+        break;
+      default:
+        window.location.href = "/";
+        break;
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, token, login, register, logout, loading }}
+      value={{
+        user,
+        token,
+        login,
+        register,
+        logout,
+        loading,
+        redirectAfterLogin,
+      }}
     >
       {children}
     </AuthContext.Provider>

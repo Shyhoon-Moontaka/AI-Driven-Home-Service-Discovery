@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import PaymentForm from "@/components/PaymentForm";
+import LocationMap from "@/components/LocationMap";
 
 interface Booking {
   id: string;
@@ -38,6 +40,14 @@ export default function BookingsDashboard() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [selectedBookingForPayment, setSelectedBookingForPayment] =
+    useState<Booking | null>(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [showLocationMap, setShowLocationMap] = useState(false);
+  const [selectedBookingForMap, setSelectedBookingForMap] =
+    useState<Booking | null>(null);
+
   const { user } = useAuth();
 
   useEffect(() => {
@@ -80,8 +90,8 @@ export default function BookingsDashboard() {
           bookings.map((booking) =>
             booking.id === bookingId
               ? { ...booking, status: newStatus }
-              : booking
-          )
+              : booking,
+          ),
         );
       } else {
         alert(data.error);
@@ -119,6 +129,33 @@ export default function BookingsDashboard() {
     }
   };
 
+  const handlePayment = (booking: Booking) => {
+    setSelectedBookingForPayment(booking);
+    setShowPaymentForm(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    setShowPaymentForm(false);
+    setSelectedBookingForPayment(null);
+    // Refresh bookings to show updated payment status
+    fetchBookings();
+  };
+
+  const handlePaymentError = (error: string) => {
+    alert(`Payment failed: ${error}`);
+    setPaymentLoading(false);
+  };
+
+  const handleShowProviderLocation = (booking: Booking) => {
+    setSelectedBookingForMap(booking);
+    setShowLocationMap(true);
+  };
+
+  const handleShowCustomerLocation = (booking: Booking) => {
+    setSelectedBookingForMap(booking);
+    setShowLocationMap(true);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
@@ -136,13 +173,17 @@ export default function BookingsDashboard() {
     }
   };
 
-  const getAllowedStatuses = () => {
-    if (user?.role === "provider") {
-      return ["confirmed", "in_progress", "completed", "cancelled"];
-    } else if (user?.role === "user") {
-      return ["cancelled"];
+  const getPaymentStatusColor = (status: string) => {
+    switch (status) {
+      case "paid":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "refunded":
+        return "bg-blue-100 text-blue-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
-    return [];
   };
 
   if (loading) {
@@ -224,11 +265,18 @@ export default function BookingsDashboard() {
                         </span>
                         <h1
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-md font-medium ${getStatusColor(
-                            booking.status
+                            booking.status,
                           )}`}
                         >
                           {booking.status.replace("_", " ")}
                         </h1>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPaymentStatusColor(
+                            booking.paymentStatus,
+                          )}`}
+                        >
+                          Payment: {booking.paymentStatus}
+                        </span>
                       </div>
 
                       {user?.role === "provider" && booking.user && (
@@ -315,12 +363,66 @@ export default function BookingsDashboard() {
 
                     {booking.status === "completed" &&
                       user?.role === "user" && (
-                        <Link
-                          href={`/services/${booking.id}/review`}
-                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                        <>
+                          <Link
+                            href={`/services/${booking.service.id}/bookings/${booking.id}/review`}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                          >
+                            Leave Review
+                          </Link>
+                          {booking.paymentStatus !== "paid" && (
+                            <button
+                              onClick={() => handlePayment(booking)}
+                              disabled={paymentLoading}
+                              className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 disabled:opacity-50"
+                            >
+                              {paymentLoading ? "Processing..." : "Pay Now"}
+                            </button>
+                          )}
+                          {booking.provider && (
+                            <button
+                              onClick={() =>
+                                handleShowProviderLocation(booking)
+                              }
+                              className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                            >
+                              Provider Location
+                            </button>
+                          )}
+                        </>
+                      )}
+
+                    {user?.role === "user" &&
+                      booking.status === "confirmed" &&
+                      booking.provider && (
+                        <button
+                          onClick={() => handleShowProviderLocation(booking)}
+                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
                         >
-                          Leave Review
-                        </Link>
+                          Provider Location
+                        </button>
+                      )}
+
+                    {user?.role === "user" &&
+                      booking.status === "in_progress" &&
+                      booking.provider && (
+                        <button
+                          onClick={() => handleShowProviderLocation(booking)}
+                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                        >
+                          Provider Location
+                        </button>
+                      )}
+
+                    {user?.role === "provider" &&
+                      booking.status !== "cancelled" &&
+                      booking.user && (
+                        <button
+                          onClick={() => handleShowCustomerLocation(booking)}
+                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700"
+                        >
+                          Customer Location
+                        </button>
                       )}
                   </div>
                 </li>
@@ -329,6 +431,52 @@ export default function BookingsDashboard() {
           </div>
         )}
       </div>
+
+      {/* Payment Form Modal */}
+      {showPaymentForm && selectedBookingForPayment && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-screen overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900">
+                Payment for {selectedBookingForPayment.service.name}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowPaymentForm(false);
+                  setSelectedBookingForPayment(null);
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+            <PaymentForm
+              bookingId={selectedBookingForPayment.id}
+              amount={selectedBookingForPayment.totalPrice}
+              onSuccess={handlePaymentSuccess}
+              onError={handlePaymentError}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Location Map Modal */}
+      {showLocationMap && selectedBookingForMap && (
+        <LocationMap
+          showLocationMap={showLocationMap}
+          targetId={
+            user?.role == "user"
+              ? selectedBookingForMap?.provider?.id
+              : selectedBookingForMap?.user?.id
+          }
+          onClose={() => {
+            setShowLocationMap(false);
+            setSelectedBookingForMap(null);
+            fetchBookings();
+          }}
+          selectedBookingForMap={selectedBookingForMap}
+        />
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import "leaflet/dist/leaflet.css";
 import { useRouter } from "next/navigation";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -19,24 +20,40 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <Link href="/" className="text-xl font-bold text-gray-900">
-                  ServiceHub
-                </Link>
-              </div>
+              {user?.role !== "admin" ? (
+                <div className="flex-shrink-0 flex items-center">
+                  <Link href="/" className="text-xl font-bold text-gray-900">
+                    JustServiceHub
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex-shrink-0 flex items-center">
+                  <Link
+                    href="/admin"
+                    className="text-xl font-bold text-gray-900"
+                  >
+                    JustServiceHub
+                  </Link>
+                </div>
+              )}
+
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link
-                  href="/"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/recommendations"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  AI Recommendations
-                </Link>
+                {user?.role !== "admin" && (
+                  <>
+                    <Link
+                      href="/"
+                      className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    >
+                      Home
+                    </Link>
+                    <Link
+                      href="/recommendations"
+                      className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    >
+                      AI Recommendations
+                    </Link>
+                  </>
+                )}
                 {user?.role === "provider" && (
                   <Link
                     href="/dashboard/provider"
@@ -45,7 +62,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     My Services
                   </Link>
                 )}
-                {user && (
+                {user?.role !== "admin" && (
                   <Link
                     href="/dashboard/bookings"
                     className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
@@ -53,12 +70,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     My Bookings
                   </Link>
                 )}
-                {user?.role === "admin" && (
+                {user && (
                   <Link
-                    href="/admin"
+                    href="/profile"
                     className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
                   >
-                    Admin
+                    My Profile
                   </Link>
                 )}
               </div>
@@ -69,6 +86,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <span className="text-sm text-gray-700">
                     Welcome, {user.name}
                   </span>
+
                   <button
                     onClick={handleLogout}
                     className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-medium"
